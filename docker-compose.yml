@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  whatsapp-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: facturador-whatsapp-worker
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3005:3005"
+    environment:
+      - PORT=3005
+      - DATABASE_URL=${DATABASE_URL}
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - SESSIONS_DIR=/app/sessions_data
+      - USE_B2_STORAGE=${USE_B2_STORAGE:-false}
+      - B2_ENDPOINT=${B2_ENDPOINT}
+      - B2_KEY_ID=${B2_KEY_ID}
+      - B2_APPLICATION_KEY=${B2_APPLICATION_KEY}
+      - B2_BUCKET_NAME=${B2_BUCKET_NAME}
+    volumes:
+      - whatsapp_sessions_data:/app/sessions_data
+      # Si se usa almacenamiento local, montar la carpeta storage de facturador-sv:
+      # - /ruta/en/vps/facturador-sv/storage:/app/storage:ro
+
+volumes:
+  whatsapp_sessions_data:
+    driver: local
