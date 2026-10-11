@@ -2,7 +2,9 @@
 import makeWASocket, { 
     DisconnectReason, 
     useMultiFileAuthState, 
-    WASocket 
+    WASocket,
+    Browsers,
+    fetchLatestBaileysVersion
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import qrcode from 'qrcode';
@@ -53,11 +55,20 @@ export class SessionManager {
 
         const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
 
+        let waVersion: [number, number, number] | undefined;
+        try {
+            const { version } = await fetchLatestBaileysVersion();
+            waVersion = version;
+        } catch {
+            waVersion = [2, 3000, 1043857760];
+        }
+
         const sock = makeWASocket({
+            version: waVersion,
             auth: state,
             printQRInTerminal: false,
             logger: pino({ level: 'silent' }),
-            browser: ['Facturador SV', 'Chrome', '1.0.0'],
+            browser: Browsers.ubuntu('Chrome'),
             connectTimeoutMs: 60000,
             defaultQueryTimeoutMs: 60000,
             syncFullHistory: false
@@ -83,6 +94,11 @@ export class SessionManager {
                         [qrDataUrl, sessionPath, companyId]
                     );
                     console.log(`[Empresa ${companyId}] Código QR generado y disponible para el frontend.`);
+
+                    try {
+                        const terminalQr = await qrcode.toString(qr, { type: 'terminal', small: true });
+                        console.log(`\n--- [Empresa ${companyId}] ESCANEAR QR EN TERMINAL ---\n${terminalQr}\n`);
+                    } catch {}
                 } catch (qrErr: any) {
                     console.error(`[Empresa ${companyId}] Error al generar DataURL de QR:`, qrErr);
                 }

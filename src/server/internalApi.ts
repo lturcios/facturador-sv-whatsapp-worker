@@ -13,7 +13,7 @@ export function createInternalApp(sessionManager: SessionManager) {
 
     // Iniciar conexión o solicitar QR
     app.post('/internal/sessions/:companyId/connect', async (req: Request, res: Response) => {
-        const companyId = parseInt(req.params.companyId, 10);
+        const companyId = parseInt(req.params.companyId as string, 10);
         if (isNaN(companyId)) {
             res.status(400).json({ error: 'companyId inválido' });
             return;
@@ -35,7 +35,7 @@ export function createInternalApp(sessionManager: SessionManager) {
 
     // Desconectar sesión
     app.post('/internal/sessions/:companyId/disconnect', async (req: Request, res: Response) => {
-        const companyId = parseInt(req.params.companyId, 10);
+        const companyId = parseInt(req.params.companyId as string, 10);
         if (isNaN(companyId)) {
             res.status(400).json({ error: 'companyId inválido' });
             return;
@@ -53,7 +53,7 @@ export function createInternalApp(sessionManager: SessionManager) {
 
     // Estado en memoria de la sesión
     app.get('/internal/sessions/:companyId/status', (req: Request, res: Response) => {
-        const companyId = parseInt(req.params.companyId, 10);
+        const companyId = parseInt(req.params.companyId as string, 10);
         if (isNaN(companyId)) {
             res.status(400).json({ error: 'companyId inválido' });
             return;
